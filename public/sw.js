@@ -1,4 +1,4 @@
-const CACHE_NAME = 'linguist-app-v1';
+const CACHE_NAME = 'linguist-app-v2';
 
 self.addEventListener('install', (event) => {
   const scope = self.registration.scope;
@@ -42,13 +42,13 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Handle SPA routing - serve index.html for navigation requests
+  // Handle SPA routing - always network-first for HTML to avoid stale shell
   if (event.request.mode === 'navigate') {
     const scope = self.registration.scope;
     event.respondWith(
-      caches.match(scope + 'index.html').then((cachedResponse) => {
-        return cachedResponse || fetch(event.request).catch(() => {
-          return caches.match(scope);
+      fetch(event.request).catch(() => {
+        return caches.match(scope + 'index.html').then((cachedResponse) => {
+          return cachedResponse || caches.match(scope);
         });
       })
     );

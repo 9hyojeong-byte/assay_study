@@ -15,7 +15,7 @@ async function preCachePngIcons() {
     const icon192Path = `${trimBase}/icon-192.png`;
     const icon512Path = `${trimBase}/icon-512.png`;
 
-    const cache = await caches.open('linguist-app-v1');
+    const cache = await caches.open('linguist-app-v2');
     const has192 = await cache.match(icon192Path);
     const has512 = await cache.match(icon512Path);
     

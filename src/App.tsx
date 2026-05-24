@@ -50,6 +50,10 @@ const MOCK_ESSAYS_DATA: EssayContent[] = [
   }
 ];
 
+function lsSet(key: string, value: string) {
+  try { localStorage.setItem(key, value); } catch (e) { console.warn("localStorage write failed:", e); }
+}
+
 export default function App() {
   // 1. Router State
   const [view, setView] = useState<'home' | 'detail' | 'write' | 'edit' | 'memorize'>('home');
@@ -83,25 +87,28 @@ export default function App() {
 
   // Load Initial Settings & Essays
   useEffect(() => {
-    // a. Retrieve Essays
-    const savedEssays = localStorage.getItem("english_essay_diary_list");
-    if (savedEssays) {
-      try {
-        setEssays(JSON.parse(savedEssays));
-      } catch (e) {
-        console.error("Local storage paring error:", e);
+    try {
+      // a. Retrieve Essays
+      const savedEssays = localStorage.getItem("english_essay_diary_list");
+      if (savedEssays) {
+        try {
+          setEssays(JSON.parse(savedEssays));
+        } catch (e) {
+          console.error("Local storage parsing error:", e);
+          setEssays(MOCK_ESSAYS_DATA);
+        }
+      } else {
         setEssays(MOCK_ESSAYS_DATA);
+        lsSet("english_essay_diary_list", JSON.stringify(MOCK_ESSAYS_DATA));
       }
-    } else {
-      // Seed initial dummy essays
-      setEssays(MOCK_ESSAYS_DATA);
-      localStorage.setItem("english_essay_diary_list", JSON.stringify(MOCK_ESSAYS_DATA));
-    }
 
-    // b. Retrieve GAS URL
-    const savedGasUrl = localStorage.getItem("google_sheets_gas_url");
-    if (savedGasUrl) {
-      setGasUrl(savedGasUrl);
+      // b. Retrieve GAS URL
+      const savedGasUrl = localStorage.getItem("google_sheets_gas_url");
+      if (savedGasUrl) setGasUrl(savedGasUrl);
+    } catch (e) {
+      // iOS Safari private mode throws SecurityError on localStorage access
+      console.warn("localStorage unavailable, running in-memory only:", e);
+      setEssays(MOCK_ESSAYS_DATA);
     }
   }, []);
 
@@ -117,7 +124,7 @@ export default function App() {
   const handleSaveGasUrl = (url: string) => {
     const trimmed = url.trim();
     setGasUrl(trimmed);
-    localStorage.setItem("google_sheets_gas_url", trimmed);
+    lsSet("google_sheets_gas_url", trimmed);
     showToast('success', '구글 스프레드시트 앱스크립트 웹 앱 URL이 정상적으로 적용되었습니다.');
   };
 
@@ -143,7 +150,7 @@ export default function App() {
       if (data.success) {
         const syncedList = data.essays || [];
         setEssays(syncedList);
-        localStorage.setItem("english_essay_diary_list", JSON.stringify(syncedList));
+        lsSet("english_essay_diary_list", JSON.stringify(syncedList));
         showToast('success', `구글 스프레드시트와 동기화가 성공적으로 완료되었습니다! (총 ${syncedList.length}개)`);
       } else {
         showToast('error', `오류 발생: ${data.message || "동기화에 실패했습니다."}`);
@@ -168,7 +175,7 @@ export default function App() {
     });
 
     setEssays(updated);
-    localStorage.setItem("english_essay_diary_list", JSON.stringify(updated));
+    lsSet("english_essay_diary_list", JSON.stringify(updated));
 
     // Update state of focus detail if viewing
     if (selectedEssay && selectedEssay.id === id) {
@@ -202,7 +209,7 @@ export default function App() {
     });
 
     setEssays(updated);
-    localStorage.setItem("english_essay_diary_list", JSON.stringify(updated));
+    lsSet("english_essay_diary_list", JSON.stringify(updated));
 
     if (selectedEssay && selectedEssay.id === id) {
       setSelectedEssay(targetItem || null);
@@ -227,7 +234,7 @@ export default function App() {
   const handleDeleteEssay = async (id: string) => {
     const updated = essays.filter((item) => item.id !== id);
     setEssays(updated);
-    localStorage.setItem("english_essay_diary_list", JSON.stringify(updated));
+    lsSet("english_essay_diary_list", JSON.stringify(updated));
     
     setView('home');
     setSelectedEssay(null);
@@ -287,7 +294,7 @@ export default function App() {
     }
 
     setEssays(updated);
-    localStorage.setItem("english_essay_diary_list", JSON.stringify(updated));
+    lsSet("english_essay_diary_list", JSON.stringify(updated));
     
     // Switch view
     setSelectedEssay(finalItem!);
