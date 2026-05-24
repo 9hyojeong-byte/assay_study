@@ -1,16 +1,18 @@
 const CACHE_NAME = 'linguist-app-v1';
-const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icon.svg',
-  '/icon-maskable.svg'
-];
 
 self.addEventListener('install', (event) => {
+  const scope = self.registration.scope;
+  const assetsToCache = [
+    scope,
+    scope + 'index.html',
+    scope + 'manifest.json',
+    scope + 'icon.svg',
+    scope + 'icon-maskable.svg'
+  ];
+
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS).catch((err) => {
+      return cache.addAll(assetsToCache).catch((err) => {
         console.warn('Failed to pre-cache some assets during install:', err);
       });
     }).then(() => self.skipWaiting())
@@ -42,10 +44,11 @@ self.addEventListener('fetch', (event) => {
 
   // Handle SPA routing - serve index.html for navigation requests
   if (event.request.mode === 'navigate') {
+    const scope = self.registration.scope;
     event.respondWith(
-      caches.match('/index.html').then((cachedResponse) => {
+      caches.match(scope + 'index.html').then((cachedResponse) => {
         return cachedResponse || fetch(event.request).catch(() => {
-          return caches.match('/');
+          return caches.match(scope);
         });
       })
     );
