@@ -77,10 +77,10 @@ export function EssayDetailView({
           </span>
           <h3 className="font-serif font-light text-2xl md:text-3xl tracking-tight leading-none text-white flex items-center gap-2 group-hover:italic transition-all">
             <BookOpen className="w-6 h-6 text-[#F27D26] shrink-0" />
-            이 지문 암기 카드 훈련 시작하기
+            암기 카드 훈련 시작
           </h3>
           <p className="text-xs text-white/60 leading-relaxed max-w-xl font-sans font-light">
-            독창적인 한영 카드 플립 시스템을 통해 문장별 연상 작용을 시험하고, 자신감 수준을 향상시키는 정교한 암기 모드를 로드합니다.
+            한영 카드 플립으로 문장별 암기 훈련을 시작합니다.
           </p>
         </div>
         <div className="bg-white/10 group-hover:bg-[#F27D26] p-4 rounded-full transition-all duration-300 z-10 shrink-0">

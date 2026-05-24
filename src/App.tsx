@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { EssayContent, ViewMode } from "./types";
 import { CalendarView } from "./components/CalendarView";
 import { ListView } from "./components/ListView";
@@ -64,6 +64,22 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const logoClickCount = useRef(0);
+  const logoClickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleLogoClick = () => {
+    setView('home');
+    setSelectedEssay(null);
+    logoClickCount.current += 1;
+    if (logoClickTimer.current) clearTimeout(logoClickTimer.current);
+    if (logoClickCount.current >= 3) {
+      logoClickCount.current = 0;
+      window.open("https://docs.google.com/spreadsheets/d/1RjzYVkeYVz_0NqQAuETQaJvX4N7E-LBC5qLc2mRHMgM/edit?gid=452292835#gid=452292835", "_blank");
+    } else {
+      logoClickTimer.current = setTimeout(() => { logoClickCount.current = 0; }, 600);
+    }
+  };
 
   // Load Initial Settings & Essays
   useEffect(() => {
@@ -344,7 +360,7 @@ export default function App() {
           {/* Main Header / Navigation rail */}
           <header className="h-20 border-b border-[#1A1A1A]/10 bg-[#FDFCFB] flex items-center sticky top-0 z-40">
             <div className="w-full px-4 flex items-center justify-between">
-              <div className="flex flex-col cursor-pointer select-none" onClick={() => { setView('home'); setSelectedEssay(null); }}>
+              <div className="flex flex-col cursor-pointer select-none" onClick={handleLogoClick}>
                 <h1 className="font-serif italic text-2xl font-light tracking-tighter text-[#1A1A1A]">
                   Linguist.
                 </h1>
@@ -417,7 +433,7 @@ export default function App() {
                       id="settings-gas-url"
                       type="url"
                       defaultValue={gasUrl}
-                      placeholder="https://script.google.com/macros/s/.../exec"
+                      placeholder="https://script.google.com/macros/s/AKfycby97E4PsjwEu59bQQVZ-IyCbNWSNB4UO3ue2YAJaLZPTodBzPi05FoHJHIJkrYgSXbBVw/exec"
                       onBlur={(e) => handleSaveGasUrl(e.target.value)}
                       className="flex-1 px-3 py-2 text-[10px] bg-[#F2F1EF]/30 border border-[#1A1A1A]/10 focus:border-[#1A1A1A]/30 rounded-lg text-[#1A1A1A] placeholder-[#1A1A1A]/30 focus:outline-none"
                     />
