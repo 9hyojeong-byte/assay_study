@@ -27,7 +27,7 @@ ${sentences.map((s: string, idx: number) => `[Sentence ${idx + 1}]: ${s}`).join(
 You must output exactly matching indices and a single overall title.`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash-lite",
       contents: prompt,
       config: {
         systemInstruction:
